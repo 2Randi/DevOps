@@ -33,13 +33,21 @@ Créer un environnement reproductible permettant :
 
 ## 📁 Arborescence
 DevOps/
+
 ├── Tomcat/
+
 │ └── tomcat_installation.MD
+
 ├── Jenkins/
+
 │ └── jenkins_setup.sh
+
 ├── Docker/
+
 │ └── Dockerfile
+
 ├── Ansible/
+
 │ └── playbook.yml
 
 
