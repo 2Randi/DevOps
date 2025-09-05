@@ -7,7 +7,7 @@ Ce projet inclut :
 - Déploiement d’une application Java avec Tomcat
 - Utilisation de Git pour le versionnage
 - Scripts d’installation automatisés
-- Exemple de pipeline CI/CD
+- Pipeline CI/CD
 - Supervision basique avec Prometheus/Grafana (à venir)
 
 ## 🚀 Objectif
@@ -36,6 +36,7 @@ DevOps/
 ├── Ansible/
 
 │ └── playbook.yml
+
 
 
 
