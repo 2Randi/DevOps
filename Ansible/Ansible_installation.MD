@@ -1,63 +1,63 @@
-# Ansible Installation
+# Installation d'Ansible
 
-Ansible is an open-source automation platform. It is very, very simple to set up and yet powerful. Ansible can help you with configuration management, application deployment, task automation.
+Ansible est une plateforme d'automatisation open source. Elle est très simple à configurer, mais néanmoins très puissante. Ansible peut vous aider dans la gestion de la configuration, le déploiement d'applications et l'automatisation des tâches.
 
-### Pre-requisites
+### Prérequis
 
-1. An AWS EC2 instance (on Control node)
+1. Une instance AWS EC2 (sur le nœud de contrôle)
 
-### Installation steps:
-#### on Amazon EC2 instance
+### Étapes d'installation :
+#### sur une instance Amazon EC2
 
-1. Install python and python-pip
-   ```sh
+1. Installez python et python-pip
+```sh
    yum install python
    yum install python-pip
    ```
-1. Install ansible using pip check for version
-    ```sh
+1. Installez ansible à l'aide de pip et vérifiez la version
+```sh
     pip install ansible
    ansible --version
    ```
-   
-1. Create a user called ansadmin (on Control node and Managed host)  
+
+1. Créez un utilisateur appelé ansadmin (sur le nœud de contrôle et l'hôte géré)  
    ```sh
    useradd ansadmin
    passwd ansadmin
    ```
-1. Below command grant sudo access to ansadmin user. But we strongly recommended using "visudo" command if you are aware vi or nano editor.  (on Control node and Managed host)
-   ```sh
-   echo "ansadmin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+1. La commande ci-dessous accorde l'accès sudo à l'utilisateur ansadmin. Cependant, nous vous recommandons vivement d'utiliser la commande « visudo » si vous connaissez l'éditeur vi ou nano.  (sur le nœud de contrôle et l'hôte géré)
+```sh
+   echo « ansadmin ALL=(ALL) NOPASSWD: ALL » >> /etc/sudoers
    ```
    
-1. Log in as a ansadmin user on master and generate ssh key (on Control node)
-   ```sh 
+1. Connectez-vous en tant qu'utilisateur ansadmin sur le maître et générez une clé ssh (sur le nœud de contrôle)
+```sh 
    sudo su - ansadmin
    ssh-keygen
    ```
-1. Copy keys onto all ansible managed hosts (on Control node)
-   ```sh 
-   ssh-copy-id ansadmin@<target-server>
+1. Copiez les clés sur tous les hôtes gérés par Ansible (sur le nœud de contrôle)
+```sh 
+   ssh-copy-id ansadmin@<serveur-cible>
    ```
 
-1. Ansible server used to create images and store on docker registry. Hence install docker, start docker services and add ansadmin to the docker group. 
-   ```sh
+1. Le serveur Ansible est utilisé pour créer des images et les stocker dans le registre Docker. Installez donc Docker, démarrez les services Docker et ajoutez ansadmin au groupe Docker. 
+```sh
    yum install docker
    
-   # start docker services 
+   # démarrer les services Docker 
    service docker start
    service docker start 
    
-   # add user to docker group 
+   # Ajouter un utilisateur au groupe docker 
    usermod -aG docker ansadmin
 
    ```
-1. Create a directory /etc/ansible and create an inventory file called "hosts" add control node and managed hosts IP addresses to it. 
+1. Créez un répertoire /etc/ansible et créez un fichier d'inventaire appelé « hosts » ; ajoutez-y les adresses IP du nœud de contrôle et des hôtes gérés. 
  
-### Validation test
+### Test de validation
 
    
-1. Run ansible command as ansadmin user it should be successful (Master)
+1. Exécutez la commande ansible en tant qu'utilisateur ansadmin ; elle devrait aboutir (maître)
    ```sh 
    ansible all -m ping
    ```
