@@ -1,34 +1,3 @@
-#### On RHEL 8.x server
-
-1. Install Python latest version  (on Control node and Managed host)
-   ```sh 
-   yum install python3 -y
-   ```
-
-1. By default, python3 is the command to run python commands. to use just python, use "alternatives" command.  (on Control node and Managed host)
-   ```sh 
-   alternatives --set python /usr/bin/python3
-   ```
-
-1. Check for Python version  
-   ```sh 
-   python --version
-   ```
-1. Install python-pip package manager  (on Control node)
-   ```sh 
-   yum -y install python3-pip
-   ```
-
-1. Create a new user for ansible administration & grant admin access to the user  (on Control node and Managed host)
-   ```sh 
-   useradd ansadmin
-   passwd ansadmin
-   ```
-1. Below command adds ansadmin to sudoers file. But we strongly recommended using "visudo" command if you are aware vi or nano editor.  (on Control node and Managed host)
-   ```sh
-   echo "ansadmin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-   ```
-
 #### Sur un serveur RHEL 8.x
 
 1. Installez la dernière version de Python  (sur le nœud de contrôle et l'hôte géré)
@@ -122,3 +91,4 @@
 ```sh 
    ansible all -m ping
    ```
+
