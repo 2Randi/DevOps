@@ -1,18 +1,5 @@
 # 💻 Projet DevOps - Déploiement et Automatisation
 
-Bienvenue sur mon projet personnel DevOps, cloné et adapté depuis un projet open-source, pour démontrer mes compétences en administration système, infrastructure, CI/CD et automatisation.
-
-## 👤 À propos de moi
-
-Je suis **Tsiory Fanomezana RANDRIAMISAINA**, étudiant en Master Informatique et passionné par le **DevOps**, l’**administration système et réseau**, et la **cybersécurité**.
-
-> 🔧 Je maîtrise les outils suivants :
-- Linux, Bash, PowerShell
-- Docker, Docker Compose
-- Jenkins, GitLab CI/CD
-- Ansible, Terraform
-- AWS (bases), Apache, Tomcat
-- Git, GitHub Actions
 
 ## 🧱 Contenu du projet
 
@@ -49,5 +36,6 @@ DevOps/
 ├── Ansible/
 
 │ └── playbook.yml
+
 
 
