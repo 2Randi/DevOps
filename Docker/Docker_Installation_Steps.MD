@@ -1,72 +1,73 @@
-# Installing Docker on Amazon Linux server
+# Installation de Docker sur un serveur Amazon Linux
 
-### Pre-requisites
-1. Amazon Linux EC2 Instance
+### Pré-requis
+1. Instance Amazon Linux EC2
 
-## Installation Steps
+## Étapes d'installation
 
-1. Install docker and start docker services
-   ```sh 
+1. Installez Docker et démarrez les services Docker
+```sh 
    yum install docker -y
    docker --version 
    
-   # start docker services
+   # démarrez les services Docker
    service docker start
    service docker status
    ```
-1. Create a user called dockeradmin
-   ```sh
+1. Créez un utilisateur appelé dockeradmin
+```sh
    useradd dockeradmin
    passwd dockeradmin
    ```
-1. add a user to docker group to manage docker 
-   ```
+1. Ajoutez un utilisateur au groupe Docker pour gérer Docker 
+```
    usermod -aG docker dockeradmin
    ```
-### Validation test
-1. Create a tomcat docker container by pulling a docker image from the public docker registry
+### Test de validation
+1. Créez un conteneur Docker Tomcat en récupérant une image Docker à partir du registre Docker public
    ```sh
    docker run -d --name test-tomcat-server -p 8090:8080 tomcat:latest
    ```
 
-## Docker Installation on CentOS server
-##### Referance URL : https://docs.docker.com/install/linux/docker-ce/centos/#install-using-the-repository
-### Pre-requisites
+## Installation de Docker sur un serveur CentOS
+##### URL de référence : https://docs.docker.com/install/linux/docker-ce/centos/#install-using-the-repository
+### Pré-requis
 
-Please follow below steps to install docker CE on CentoOS server instance. For RedHat only Docker EE available 
+Veuillez suivre les étapes ci-dessous pour installer Docker CE sur une instance de serveur CentOS. Pour RedHat, seul Docker EE est disponible.
 
-1. Install the required packages.
+1. Installez les paquets requis.
 
-   ```sh 
+```sh 
    sudo yum install -y yum-utils \
    device-mapper-persistent-data \
    lvm2
    ```
   
-1. Use the following command to set up the stable repository.
+1. Utilisez la commande suivante pour configurer le référentiel stable.
  
-   ```sh 
+```sh 
    sudo yum-config-manager \
    --add-repo \
    https://download.docker.com/linux/centos/docker-ce.repo
    ```
 
-### INSTALLING DOCKER CE
+### INSTALLATION DE DOCKER CE
 
-1. Install the latest version of Docker CE.
-   ```sh 
+1. Installez la dernière version de Docker CE.
+```sh 
    sudo yum install docker-ce
-   ```
+   ``` 
 
-   Note: If prompted to accept the GPG key, verify that the fingerprint matches 
-060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35, and if so, accept it.
+   Remarque : si vous êtes invité à accepter la clé GPG, vérifiez que l'empreinte digitale correspond à 
+060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35, et si c'est le cas, acceptez-la.
 
-1. Start Docker.
-   ```sh 
+1. Démarrez Docker.
+```sh 
    sudo systemctl start docker
    ```
 
-1. Verify that docker is installed correctly by running the hello-world image.
-   ```sh
+1. Vérifiez que Docker est correctement installé en exécutant l'image hello-world.
+```sh
    sudo docker run hello-world
    ```
+
