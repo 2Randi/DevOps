@@ -1,7 +1,7 @@
-# 💻 Projet DevOps - Déploiement et Automatisation
+### Projet DevOps - Déploiement et Automatisation
 
 
-## 🧱 Contenu du projet
+#### Contenu du projet
 
 Ce projet inclut :
 - Déploiement d’une application Java avec Tomcat
@@ -10,7 +10,7 @@ Ce projet inclut :
 - Pipeline CI/CD
 - Supervision basique avec Prometheus/Grafana (à venir)
 
-## 🚀 Objectif
+#### Objectif
 
 Créer un environnement reproductible permettant :
 - Le déploiement automatisé d'une application web
@@ -18,25 +18,15 @@ Créer un environnement reproductible permettant :
 - L’intégration et le déploiement continus (CI/CD)
 - La préparation à un environnement cloud ou conteneurisé
 
-## 📁 Arborescence
+#### Arborescence
+```
 DevOps/
-
 ├── Tomcat/
-
 │ └── tomcat_installation.MD
-
 ├── Jenkins/
-
 │ └── jenkins_setup.sh
-
 ├── Docker/
-
 │ └── Dockerfile
-
 ├── Ansible/
-
 │ └── playbook.yml
-
-
-
-
+```
