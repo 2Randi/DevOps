@@ -53,10 +53,10 @@ DevOps/
 │   ├── Ansible_installation.MD
 │   ├── Ansible_install_on_RHEL.MD
 │   ├── playbook-install-docker.yml
-│   ├── playbook-hardening.yml           (durcissement sécurité SecOps)
+│   ├── playbook-hardening.yml           (durcissement sécurité)
 │   └── Hardening_Playbook.MD
 ├── Kubernetes/
-│   ├── Kubernetes_Setup_using_kubeadm.md   (labo local, à privilégier)
+│   ├── Kubernetes_Setup_using_kubeadm.md   (labo local)
 │   ├── kubernetes_setup_using_eksctl.md    (référence cloud AWS)
 │   ├── Kubernetes_Setup_using_kops.md      (référence cloud AWS, historique)
 │   ├── Integrating_Kubernetes_with_Jenkins.MD
