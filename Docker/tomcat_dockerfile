@@ -2,7 +2,7 @@
 # Vérifiez la dernière version stable de Tomcat 9 sur https://tomcat.apache.org/download-90.cgi
 # avant de construire l'image, et ajustez TOMCAT_VERSION en conséquence.
 FROM rockylinux:9
-ARG TOMCAT_VERSION=9.0.98
+ARG TOMCAT_VERSION=9.0.120
 
 RUN dnf install -y java-17-openjdk-headless tar gzip && dnf clean all
 RUN mkdir -p /opt/tomcat
