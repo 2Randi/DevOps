@@ -1,0 +1,86 @@
+---
+# Playbook d'exemple : installation et démarrage de Docker sur les hôtes managés
+# Usage : ansible-playbook -i /etc/ansible/hosts playbook-install-docker.yml
+- name: Installer et configurer Docker
+  hosts: managed
+  become: true
+
+  vars:
+    docker_admin_user: dockeradmin
+
+  tasks:
+    - name: Installer les paquets prérequis (Debian/Ubuntu)
+      when: ansible_os_family == "Debian"
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+        update_cache: true
+
+    - name: Ajouter la clé GPG officielle Docker (Debian/Ubuntu)
+      when: ansible_os_family == "Debian"
+      get_url:
+        url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Ajouter le dépôt Docker (Debian/Ubuntu)
+      when: ansible_os_family == "Debian"
+      apt_repository:
+        repo: "deb [arch={{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Installer Docker Engine (Debian/Ubuntu)
+      when: ansible_os_family == "Debian"
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Ajouter le dépôt Docker (RHEL/Rocky)
+      when: ansible_os_family == "RedHat"
+      yum_repository:
+        name: docker-ce
+        description: Docker CE Repository
+        baseurl: "https://download.docker.com/linux/centos/9/$basearch/stable"
+        gpgcheck: true
+        gpgkey: https://download.docker.com/linux/centos/gpg
+
+    - name: Installer Docker Engine (RHEL/Rocky)
+      when: ansible_os_family == "RedHat"
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+    - name: Démarrer et activer le service Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Créer l'utilisateur applicatif dédié
+      user:
+        name: "{{ docker_admin_user }}"
+        groups: docker
+        append: true
+        shell: /bin/bash
+
+    - name: Vérifier l'installation avec le conteneur hello-world
+      command: docker run --rm hello-world
+      register: docker_test
+      changed_when: false
+
+    - name: Afficher le résultat du test
+      debug:
+        var: docker_test.stdout
