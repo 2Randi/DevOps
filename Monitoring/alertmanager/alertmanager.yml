@@ -1,0 +1,26 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: ["alertname"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+
+receivers:
+  - name: default
+    # Aucun récepteur configuré par défaut (labo). En conditions réelles, ajoutez
+    # par exemple un webhook Slack ou un relais e-mail :
+    #
+    # slack_configs:
+    #   - api_url: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+    #     channel: "#alertes-infra"
+    #     send_resolved: true
+    #
+    # email_configs:
+    #   - to: "astreinte@example.org"
+    #     from: "alertmanager@example.org"
+    #     smarthost: "smtp.example.org:587"
+    #     auth_username: "alertmanager@example.org"
+    #     auth_password: "changeme"
