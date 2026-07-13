@@ -1,94 +1,57 @@
-#### Sur un serveur RHEL 8.x
+# Installation d'Ansible sur RHEL 9 / Rocky Linux 9
 
-1. Installez la dernière version de Python  (sur le nœud de contrôle et l'hôte géré)
-```sh 
-   yum install python3 -y
-   ```
+RHEL 8 étant en fin de vie standard, cette procédure cible **RHEL 9** ou **Rocky Linux 9** (équivalent gratuit et binaire-compatible, adapté pour un labo local).
 
-1. Par défaut, python3 est la commande permettant d'exécuter les commandes Python. Pour utiliser uniquement python, utilisez la commande « alternatives ».  (sur le nœud de contrôle et l'hôte géré)
-```sh 
-   alternatives --set python /usr/bin/python3
-   ```
+### Prérequis
 
-1. Vérifiez la version de Python
-```sh 
-   python --version
-   ```
-1. Installez le gestionnaire de paquets python-pip  (sur le nœud de contrôle)
-```sh 
-   yum -y install python3-pip
-   ```
+1. Un nœud de contrôle et un ou plusieurs hôtes gérés sous RHEL 9 / Rocky 9
 
-1. Créez un nouvel utilisateur pour l'administration ansible et accordez-lui un accès administrateur  (sur le nœud de contrôle et l'hôte géré)
-```sh 
-   useradd ansadmin
-   passwd ansadmin
-   ```
-1. La commande ci-dessous ajoute ansadmin au fichier sudoers. Cependant, nous vous recommandons vivement d'utiliser la commande « visudo » si vous connaissez l'éditeur vi ou nano.  (sur le nœud de contrôle et l'hôte géré)
-```sh
-   echo « ansadmin ALL=(ALL) NOPASSWD: ALL » >> /etc/sudoers
-   ```
-1. Il est conseillé d'utiliser l'authentification par clé. Si vous êtes encore en phase d'apprentissage, utilisez l'authentification par mot de passe (sur le nœud de contrôle et l'hôte géré)
-```sh 
-   La commande sed remplace « PasswordAuthentication no » par « yes » sans modifier le fichier 
-    sed -ie “s/PasswordAuthentication no/PasswordAuthentication yes/” /etc/ssh/sshd_config
-    sudo service sshd reload
-   ``` 
+### Étapes d'installation
 
-    #### Installez Ansible en tant qu'utilisateur ansadmin (sur le nœud de contrôle)
-   ```sh 
-   su - ansadmin
-   pip3 install ansible --user
-   ``` 
-   
-1. Il est conseillé d'utiliser l'authentification par clé. Si vous êtes encore en phase d'apprentissage, utilisez l'authentification par mot de passe (sur le nœud de contrôle et l'hôte géré)
-```sh 
-   La commande sed remplace « PasswordAuthentication no » par « yes » sans modifier le fichier 
-    sed -ie “s/PasswordAuthentication no/PasswordAuthentication yes/” /etc/ssh/sshd_config
-    sudo service sshd reload
-   ``` 
-
-    #### Installez Ansible en tant qu'utilisateur ansadmin (sur le nœud de contrôle)
-   ```sh 
-   su - ansadmin
-   pip3 install ansible --user
-   ``` 
-      Remarque : Ansible doit être installé en tant qu'utilisateur 
-
-
-
-1. Il est recommandé d'utiliser l'authentification par clé. Si vous êtes encore en phase d'apprentissage, utilisez l'authentification par mot de passe (sur le nœud de contrôle et l'hôte géré).
-```sh 
-   # La commande sed remplace « PasswordAuthentication no » par « yes » sans modifier le fichier. 
-    sed -ie “s/PasswordAuthentication no/PasswordAuthentication yes/” /etc/ssh/sshd_config
-    sudo service sshd reload
-   ``` 
-
-    #### Installez Ansible en tant qu'utilisateur ansadmin (sur le nœud de contrôle)
-   ```sh 
-   su - ansadmin
-   pip3 install ansible --user
-   ``` 
-      Remarque : Ansible doit être installé en tant qu'utilisateur (ici ansadmin)
-1. Vérifiez la version d'Ansible 
+1. Installez Python 3 (sur le nœud de contrôle et l'hôte géré)
    ```sh
+   sudo dnf install -y python3 python3-pip
+   python3 --version
+   ```
+
+2. Créez un utilisateur dédié `ansadmin` et accordez-lui l'accès sudo (sur le nœud de contrôle et l'hôte géré)
+   ```sh
+   sudo useradd -m -s /bin/bash ansadmin
+   sudo passwd ansadmin
+   echo "ansadmin ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ansadmin
+   sudo chmod 440 /etc/sudoers.d/ansadmin
+   ```
+
+3. Installez Ansible en tant qu'utilisateur `ansadmin` (sur le nœud de contrôle)
+   ```sh
+   sudo su - ansadmin
+   sudo dnf install -y epel-release
+   sudo dnf install -y ansible
+   # Alternative si le paquet n'est pas disponible dans les dépôts activés :
+   # pip3 install --user ansible
    ansible --version
    ```
 
-1. Connectez-vous en tant qu'utilisateur ansadmin sur le maître et générez une clé ssh (sur le nœud de contrôle)
-   ```sh 
-   ssh-keygen
+4. Générez une paire de clés SSH pour `ansadmin` sur le nœud de contrôle et copiez-la vers chaque hôte géré (l'authentification par clé est la méthode recommandée ; ne réactivez `PasswordAuthentication` que ponctuellement, pour du dépannage, jamais en environnement de production)
+   ```sh
+   ssh-keygen -t ed25519
+   ssh-copy-id ansadmin@<hote-cible>
    ```
-1. Copiez les clés sur tous les hôtes gérés par ansible (sur le nœud de contrôle)
-   ```sh 
-   ssh-copy-id ansadmin@<serveur-cible>
+
+5. Créez le répertoire de configuration et un inventaire (sur le nœud de contrôle)
+   ```sh
+   sudo mkdir -p /etc/ansible
+   sudo tee /etc/ansible/hosts <<'EOF'
+   [managed]
+   <ip-hote-1>
+   <ip-hote-2>
+   EOF
    ```
+
 ### Test de validation
 
-1. Créez un répertoire /etc/ansible et créez un fichier d'inventaire appelé « hosts » dans lequel vous ajouterez l'adresse IP du nœud de contrôle. 
-  
-1. Exécutez la commande ansible en tant qu'utilisateur ansadmin. Elle devrait fonctionner (maître)
-```sh 
-   ansible all -m ping
-   ```
+```sh
+ansible all -m ping
+```
 
+Voir aussi : [Ansible_installation.MD](Ansible_installation.MD) pour Debian/Ubuntu, et le playbook d'exemple [playbook-install-docker.yml](playbook-install-docker.yml).
