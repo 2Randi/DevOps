@@ -1,10 +1,14 @@
-FROM centos
-RUN yum install java -y
-RUN mkdir /opt/tomcat/
+# CentOS étant en fin de vie, l'image de base utilise Rocky Linux 9.
+# Vérifiez la dernière version stable de Tomcat 9 sur https://tomcat.apache.org/download-90.cgi
+# avant de construire l'image, et ajustez TOMCAT_VERSION en conséquence.
+FROM rockylinux:9
+ARG TOMCAT_VERSION=9.0.98
+
+RUN dnf install -y java-17-openjdk-headless tar gzip && dnf clean all
+RUN mkdir -p /opt/tomcat
 WORKDIR /opt/tomcat
-ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.54/bin/apache-tomcat-9.0.54.tar.gz /opt/tomcat
-RUN tar xvfz apache*.tar.gz
-RUN mv apache-tomcat-9.0.54/* /opt/tomcat 
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz /opt/tomcat/
+RUN tar xzf apache-tomcat-${TOMCAT_VERSION}.tar.gz --strip-components=1 && \
+    rm apache-tomcat-${TOMCAT_VERSION}.tar.gz
 EXPOSE 8080
 CMD ["/opt/tomcat/bin/catalina.sh", "run"]
-
