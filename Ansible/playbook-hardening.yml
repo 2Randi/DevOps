@@ -1,0 +1,248 @@
+---
+# Playbook de durcissement sécurité (inspiré des benchmarks CIS) pour hôtes
+# Debian/Ubuntu et RHEL/Rocky. Conçu pour un labo local — voir Hardening_Playbook.MD
+# pour le détail de chaque contrôle et les précautions avant exécution.
+#
+# Usage :
+#   ansible-playbook -i /etc/ansible/hosts playbook-hardening.yml
+#   ansible-playbook -i /etc/ansible/hosts playbook-hardening.yml --tags ssh,fail2ban
+#
+- name: Durcissement sécurité de base
+  hosts: managed
+  become: true
+
+  vars:
+    # Désactiver l'authentification par mot de passe SSH est risqué si les clés
+    # publiques ne sont pas déjà déployées sur TOUS les hôtes : par défaut à false.
+    # Vérifiez `ansible all -m ping` en clé SSH avant de passer cette variable à true.
+    disable_ssh_password_auth: false
+    ssh_max_auth_tries: 3
+    fail2ban_bantime: 1h
+    fail2ban_findtime: 10m
+    fail2ban_maxretry: 5
+    allowed_tcp_ports:
+      - 22
+
+  tasks:
+    # ---------- SSH ----------
+    - name: "[ssh] Interdire la connexion root directe"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PermitRootLogin"
+        line: "PermitRootLogin no"
+      notify: restart sshd
+      tags: [ssh]
+
+    - name: "[ssh] Interdire les mots de passe vides"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PermitEmptyPasswords"
+        line: "PermitEmptyPasswords no"
+      notify: restart sshd
+      tags: [ssh]
+
+    - name: "[ssh] Limiter le nombre de tentatives d'authentification"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?MaxAuthTries"
+        line: "MaxAuthTries {{ ssh_max_auth_tries }}"
+      notify: restart sshd
+      tags: [ssh]
+
+    - name: "[ssh] Désactiver l'authentification par mot de passe (opt-in, voir vars)"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PasswordAuthentication"
+        line: "PasswordAuthentication no"
+      when: disable_ssh_password_auth | bool
+      notify: restart sshd
+      tags: [ssh]
+
+    # ---------- Pare-feu ----------
+    - name: "[firewall] Installer ufw (Debian/Ubuntu)"
+      when: ansible_os_family == "Debian"
+      apt:
+        name: ufw
+        state: present
+      tags: [firewall]
+
+    - name: "[firewall] Autoriser les ports nécessaires (ufw)"
+      when: ansible_os_family == "Debian"
+      community.general.ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop: "{{ allowed_tcp_ports }}"
+      tags: [firewall]
+
+    - name: "[firewall] Politique par défaut deny incoming + activation (ufw)"
+      when: ansible_os_family == "Debian"
+      community.general.ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+      tags: [firewall]
+
+    - name: "[firewall] Installer firewalld (RHEL/Rocky)"
+      when: ansible_os_family == "RedHat"
+      dnf:
+        name: firewalld
+        state: present
+      tags: [firewall]
+
+    - name: "[firewall] Activer firewalld (RHEL/Rocky)"
+      when: ansible_os_family == "RedHat"
+      systemd:
+        name: firewalld
+        state: started
+        enabled: true
+      tags: [firewall]
+
+    - name: "[firewall] Autoriser les ports nécessaires (firewalld)"
+      when: ansible_os_family == "RedHat"
+      ansible.posix.firewalld:
+        port: "{{ item }}/tcp"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop: "{{ allowed_tcp_ports }}"
+      tags: [firewall]
+
+    # ---------- Fail2ban ----------
+    - name: "[fail2ban] Installer fail2ban (Debian/Ubuntu)"
+      when: ansible_os_family == "Debian"
+      apt:
+        name: fail2ban
+        state: present
+      tags: [fail2ban]
+
+    - name: "[fail2ban] Installer le dépôt EPEL (RHEL/Rocky)"
+      when: ansible_os_family == "RedHat"
+      dnf:
+        name: epel-release
+        state: present
+      tags: [fail2ban]
+
+    - name: "[fail2ban] Installer fail2ban (RHEL/Rocky, via EPEL)"
+      when: ansible_os_family == "RedHat"
+      dnf:
+        name: fail2ban
+        state: present
+      tags: [fail2ban]
+
+    - name: "[fail2ban] Déployer la jail sshd"
+      copy:
+        dest: /etc/fail2ban/jail.d/sshd.local
+        content: |
+          [sshd]
+          enabled = true
+          bantime  = {{ fail2ban_bantime }}
+          findtime = {{ fail2ban_findtime }}
+          maxretry = {{ fail2ban_maxretry }}
+      notify: restart fail2ban
+      tags: [fail2ban]
+
+    - name: "[fail2ban] Démarrer et activer le service"
+      systemd:
+        name: fail2ban
+        state: started
+        enabled: true
+      tags: [fail2ban]
+
+    # ---------- Mises à jour de sécurité automatiques ----------
+    - name: "[updates] Installer et configurer unattended-upgrades (Debian/Ubuntu)"
+      when: ansible_os_family == "Debian"
+      block:
+        - apt:
+            name: unattended-upgrades
+            state: present
+        - copy:
+            dest: /etc/apt/apt.conf.d/20auto-upgrades
+            content: |
+              APT::Periodic::Update-Package-Lists "1";
+              APT::Periodic::Unattended-Upgrade "1";
+      tags: [updates]
+
+    - name: "[updates] Installer et activer dnf-automatic (RHEL/Rocky)"
+      when: ansible_os_family == "RedHat"
+      block:
+        - dnf:
+            name: dnf-automatic
+            state: present
+        - lineinfile:
+            path: /etc/dnf/automatic.conf
+            regexp: "^apply_updates"
+            line: "apply_updates = yes"
+        - systemd:
+            name: dnf-automatic.timer
+            state: started
+            enabled: true
+      tags: [updates]
+
+    # ---------- Audit / journalisation ----------
+    - name: "[audit] Installer auditd (Debian/Ubuntu)"
+      when: ansible_os_family == "Debian"
+      apt:
+        name: auditd
+        state: present
+      tags: [audit]
+
+    - name: "[audit] Installer auditd (RHEL/Rocky)"
+      when: ansible_os_family == "RedHat"
+      dnf:
+        name: audit
+        state: present
+      tags: [audit]
+
+    - name: "[audit] Surveiller les fichiers sensibles"
+      copy:
+        dest: /etc/audit/rules.d/hardening.rules
+        content: |
+          -w /etc/passwd -p wa -k identity
+          -w /etc/shadow -p wa -k identity
+          -w /etc/ssh/sshd_config -p wa -k sshd_config
+          -w /etc/sudoers -p wa -k sudoers
+          -w /etc/sudoers.d/ -p wa -k sudoers
+      notify: restart auditd
+      tags: [audit]
+
+    - name: "[audit] Démarrer et activer auditd"
+      systemd:
+        name: auditd
+        state: started
+        enabled: true
+      tags: [audit]
+
+    # ---------- Synchronisation horaire ----------
+    # Nom du service chrony différent selon la distribution (nécessaire pour corréler les logs)
+    - name: "[ntp] S'assurer que chrony est actif (Debian/Ubuntu)"
+      when: ansible_os_family == "Debian"
+      systemd:
+        name: chrony
+        state: started
+        enabled: true
+      tags: [ntp]
+
+    - name: "[ntp] S'assurer que chronyd est actif (RHEL/Rocky)"
+      when: ansible_os_family == "RedHat"
+      systemd:
+        name: chronyd
+        state: started
+        enabled: true
+      tags: [ntp]
+
+  handlers:
+    - name: restart sshd
+      systemd:
+        name: sshd
+        state: restarted
+
+    - name: restart fail2ban
+      systemd:
+        name: fail2ban
+        state: restarted
+
+    - name: restart auditd
+      systemd:
+        name: auditd
+        state: restarted
