@@ -20,13 +20,13 @@ Docker Hub est un service de registre basé sur le cloud qui vous permet de vous
 
 1. Créez une balise personnalisée pour l'image Docker
 ```sh
-   docker tag ubuntu:latest valaxy/ubuntu:demo
+   docker tag ubuntu:latest 2randi/ubuntu:demo
    ```
 
 1. Connectez-vous à votre registre Docker Hub 
 ```sh
    docker login
-   docker push valaxy/ubuntu:demo
+   docker push 2randi/ubuntu:demo
    ```
 
 ### Test 
@@ -38,6 +38,6 @@ Docker Hub est un service de registre basé sur le cloud qui vous permet de vous
 
 1. Récupérez votre image personnalisée depuis votre compte Docker
    ```sh
-   docker pull valaxy/ubuntu:demo
+   docker pull 2randi/ubuntu:demo
    ```
 
