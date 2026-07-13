@@ -1,99 +1,100 @@
-# Setup Kubernetes (K8s) Cluster on AWS
+> **Référence cloud / optionnel, outil largement remplacé** : `kops` est aujourd'hui moins utilisé qu'`eksctl` ou un cluster EKS managé pour AWS. Ce guide nécessite un compte AWS et n'est pas exécutable dans un labo local. Pour un labo local, utilisez plutôt [Kubernetes_Setup_using_kubeadm.md](Kubernetes_Setup_using_kubeadm.md). Conservé ici à titre de référence historique.
 
+# Installer un cluster Kubernetes (K8s) sur AWS
 
-1. Create Ubuntu EC2 instance
-1. install AWSCLI
+1. Créez une instance EC2 Ubuntu
+1. Installez AWSCLI
    ```sh
     curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o awscli-bundle.zip
     sudo apt update
     sudo apt install unzip python
     unzip awscli-bundle.zip
-    #sudo apt-get install unzip - if you dont have unzip in your system
+    #sudo apt-get install unzip - si unzip n'est pas présent sur votre système
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
     ```
 
-1. Install kubectl on ubuntu instance
+1. Installez kubectl sur l'instance Ubuntu
    ```sh
    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     chmod +x ./kubectl
     sudo mv ./kubectl /usr/local/bin/kubectl
    ```
 
-1. Install kops on ubuntu instance
+1. Installez kops sur l'instance Ubuntu
    ```sh
     curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
     chmod +x kops-linux-amd64
     sudo mv kops-linux-amd64 /usr/local/bin/kops
     ```
-1. Create an IAM user/role  with Route53, EC2, IAM and S3 full access
+1. Créez un utilisateur/rôle IAM avec accès complet à Route53, EC2, IAM et S3
 
-1. Attach IAM role to ubuntu instance
+1. Attachez le rôle IAM à l'instance Ubuntu
    ```sh
-   # Note: If you create IAM user with programmatic access then provide Access keys. Otherwise region information is enough
+   # Remarque : si vous créez un utilisateur IAM avec accès programmatique, fournissez les clés d'accès. Sinon, l'information de région suffit.
    aws configure
     ```
 
-1. Create a Route53 private hosted zone (you can create Public hosted zone if you have a domain)
+1. Créez une zone hébergée privée Route53 (vous pouvez créer une zone publique si vous avez un domaine)
    ```sh
-   Routeh53 --> hosted zones --> created hosted zone  
-   Domain Name: valaxy.net
-   Type: Private hosted zone for Amzon VPC
+   Route53 --> hosted zones --> created hosted zone  
+   Domain Name: exemple.net
+   Type: Private hosted zone for Amazon VPC
    ```
 
-1. create an S3 bucket
+1. Créez un bucket S3
    ```sh
-    aws s3 mb s3://demo.k8s.valaxy.net
+    aws s3 mb s3://demo.k8s.exemple.net
    ```
-1. Expose environment variable:
+1. Exposez la variable d'environnement :
    ```sh
-    export KOPS_STATE_STORE=s3://demo.k8s.valaxy.net
+    export KOPS_STATE_STORE=s3://demo.k8s.exemple.net
    ```
 
-1. Create sshkeys before creating cluster
+1. Créez des clés SSH avant de créer le cluster
    ```sh
     ssh-keygen
    ```
 
-1. Create kubernetes cluster definitions on S3 bucket
+1. Créez les définitions du cluster Kubernetes sur le bucket S3
    ```sh
-   kops create cluster --cloud=aws --zones=ap-south-1b --name=demo.k8s.valaxy.net --dns-zone=valaxy.net --dns private 
+   kops create cluster --cloud=aws --zones=ap-south-1b --name=demo.k8s.exemple.net --dns-zone=exemple.net --dns private 
     ```
 
-1. If you wish to update the cluster worker node sizes use below command 
+1. Si vous souhaitez modifier la taille des workers du cluster, utilisez la commande ci-dessous
    ```sh 
-   kops edit ig --name=CHANGE_TO_CLUSTER_NAME nodes
+   kops edit ig --name=NOM_DU_CLUSTER nodes
    ```
 
-1. Create kubernetes cluser
+1. Créez le cluster kubernetes
     ```sh
-    kops update cluster demo.k8s.valaxy.net --yes
+    kops update cluster demo.k8s.exemple.net --yes
     ```
 
-1. Validate your cluster
+1. Validez votre cluster
      ```sh
       kops validate cluster
     ```
 
-1. To list nodes
+1. Pour lister les nœuds
    ```sh
    kubectl get nodes
    ```
 
-1. To delete cluster
+1. Pour supprimer le cluster
     ```sh
-     kops delete cluster demo.k8s.valaxy.net --yes
+     kops delete cluster demo.k8s.exemple.net --yes
     ```
    
-#### Deploying Nginx pods on Kubernetes
-1. Deploying Nginx Container
+#### Déployer des pods Nginx sur Kubernetes
+1. Déployer un conteneur Nginx
     ```sh
     kubectl create deploy sample-nginx --image=nginx --replicas=2 --port=80
-    # kubectl deploy simple-devops-project --image=yankils/simple-devops-image --replicas=2 --port=8080
+    # kubectl deploy simple-devops-project --image=2randi/simple-devops-image --replicas=2 --port=8080
     kubectl get all
     kubectl get pod
    ```
 
-1. Expose the deployment as service. This will create an ELB in front of those 2 containers and allow us to publicly access them.
+1. Exposez le déploiement en tant que service. Cela créera un ELB devant ces 2 conteneurs et permettra d'y accéder publiquement.
    ```sh
    kubectl expose deployment sample-nginx --port=80 --type=LoadBalancer
    # kubectl expose deployment simple-devops-project --port=8080 --type=LoadBalancer

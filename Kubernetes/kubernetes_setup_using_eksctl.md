@@ -1,16 +1,18 @@
-# Setup Kubernetes on Amazon EKS
+> **Référence cloud / optionnel** : ce guide nécessite un compte AWS et n'est pas exécutable dans un labo local sans accès cloud. Pour un labo local, utilisez plutôt [Kubernetes_Setup_using_kubeadm.md](Kubernetes_Setup_using_kubeadm.md). Les numéros de version ci-dessous (kubectl 1.21, etc.) sont datés : vérifiez les dernières versions sur la documentation AWS EKS avant utilisation.
 
-You can follow same procedure in the official  AWS document [Getting started with Amazon EKS – eksctl](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html)   
+# Installer Kubernetes sur Amazon EKS
 
-#### Pre-requisites: 
-  - an EC2 Instance 
-  - Install AWSCLI latest verison 
+Vous pouvez suivre la même procédure dans le document officiel AWS [Getting started with Amazon EKS – eksctl](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html)
 
-1. Setup kubectl   
-   a. Download kubectl version 1.21  
-   b. Grant execution permissions to kubectl executable   
-   c. Move kubectl onto /usr/local/bin   
-   d. Test that your kubectl installation was successful    
+#### Pré-requis :
+  - Une instance EC2
+  - Installer la dernière version d'AWSCLI
+
+1. Installer kubectl
+   a. Télécharger kubectl version 1.21
+   b. Accorder les droits d'exécution à l'exécutable kubectl
+   c. Déplacer kubectl dans /usr/local/bin
+   d. Vérifier que l'installation de kubectl a réussi
 
    ```sh 
    curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
@@ -18,10 +20,10 @@ You can follow same procedure in the official  AWS document [Getting started wit
    mv ./kubectl /usr/local/bin 
    kubectl version --short --client
    ```
-2. Setup eksctl   
-   a. Download and extract the latest release   
-   b. Move the extracted binary to /usr/local/bin   
-   c. Test that your eksclt installation was successful   
+2. Installer eksctl
+   a. Télécharger et extraire la dernière version
+   b. Déplacer le binaire extrait dans /usr/local/bin
+   c. Vérifier que l'installation d'eksctl a réussi
 
    ```sh
    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
@@ -29,53 +31,52 @@ You can follow same procedure in the official  AWS document [Getting started wit
    eksctl version
    ```
   
-3. Create an IAM Role and attache it to EC2 instance    
-   `Note: create IAM user with programmatic access if your bootstrap system is outside of AWS`   
-   IAM user should have access to   
-   IAM   
-   EC2   
-   CloudFormation  
-   Note: Check eksctl documentaiton for [Minimum IAM policies](https://eksctl.io/usage/minimum-iam-policies/)
+3. Créer un rôle IAM et l'attacher à l'instance EC2
+   `Remarque : créez un utilisateur IAM avec accès programmatique si votre système de bootstrap est en dehors d'AWS`
+   L'utilisateur IAM doit avoir accès à
+   IAM
+   EC2
+   CloudFormation
+   Remarque : consultez la documentation eksctl pour les [politiques IAM minimales](https://eksctl.io/usage/minimum-iam-policies/)
    
-4. Create your cluster and nodes 
+4. Créer votre cluster et vos nœuds
    ```sh
-   eksctl create cluster --name cluster-name  \
-   --region region-name \
-   --node-type instance-type \
+   eksctl create cluster --name nom-du-cluster  \
+   --region nom-de-la-region \
+   --node-type type-instance \
    --nodes-min 2 \
    --nodes-max 2 \ 
    --zones <AZ-1>,<AZ-2>
    
-   example:
-   eksctl create cluster --name valaxy-cluster \
+   exemple :
+   eksctl create cluster --name mon-cluster \
       --region ap-south-1 \
    --node-type t2.small \
     ```
 
-5. To delete the EKS clsuter 
+5. Pour supprimer le cluster EKS
    ```sh 
-   eksctl delete cluster valaxy --region ap-south-1
+   eksctl delete cluster mon-cluster --region ap-south-1
    ```
    
-6. Validate your cluster using by creating by checking nodes and by creating a pod 
+6. Validez votre cluster en vérifiant les nœuds et en créant un pod
    ```sh 
    kubectl get nodes
    kubectl run tomcat --image=tomcat 
    ```
    
-   #### Deploying Nginx pods on Kubernetes
-1. Deploying Nginx Container
+   #### Déployer des pods Nginx sur Kubernetes
+1. Déployer un conteneur Nginx
     ```sh
     kubectl create deployment  demo-nginx --image=nginx --replicas=2 --port=80
-    # kubectl deployment regapp --image=valaxy/regapp --replicas=2 --port=8080
+    # kubectl deployment regapp --image=2randi/regapp --replicas=2 --port=8080
     kubectl get all
     kubectl get pod
    ```
 
-1. Expose the deployment as service. This will create an ELB in front of those 2 containers and allow us to publicly access them.
+1. Exposez le déploiement en tant que service. Cela créera un ELB devant ces 2 conteneurs et permettra d'y accéder publiquement.
    ```sh
    kubectl expose deployment demo-nginx --port=80 --type=LoadBalancer
    # kubectl expose deployment regapp --port=8080 --type=LoadBalancer
    kubectl get services -o wide
    ```
-

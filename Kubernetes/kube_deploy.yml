@@ -4,12 +4,12 @@
   user: root
 
   tasks:
-    - name: deploy regapp on kubernetes
-      command: kubectl apply -f regapp-deployment.yml
+    - name: déployer regapp sur kubernetes
+      command: kubectl apply -f regapp-deploy.yml
 
-    - name: create service for regapp
+    - name: créer le service pour regapp
       command: kubectl apply -f regapp-service.yml
 
-    - name: update deployment with new pods if image updated in docker hub
-      command: kubectl rollout restart deployment.apps/valaxy-regapp
+    - name: mettre à jour le déploiement avec de nouveaux pods si l'image a changé sur docker hub
+      command: kubectl rollout restart deployment.apps/regapp-deployment
 

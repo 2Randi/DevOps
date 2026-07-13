@@ -1,0 +1,9 @@
+---
+- name: créer le service pour le deployment
+  hosts: kubernetes
+  # become: true
+  user: ubuntu
+
+  tasks:
+  - name: créer un service
+    command: kubectl apply -f webapp-service.yml

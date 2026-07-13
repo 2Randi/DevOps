@@ -2,14 +2,14 @@
 - hosts: ansible
 
   tasks:
-  - name: create docker image
+  - name: créer l'image docker
     command: docker build -t regapp:latest .
     args:
      chdir: /opt/docker
 
-  - name: create tag to push image onto dockerhub
-    command: docker tag regapp:latest valaxy/regapp:latest
+  - name: créer le tag pour pousser l'image sur dockerhub
+    command: docker tag regapp:latest 2randi/regapp:latest
 
-  - name: push docker image
-    command: docker push valaxy/regapp:latest
+  - name: pousser l'image docker
+    command: docker push 2randi/regapp:latest
 

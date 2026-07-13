@@ -1,0 +1,12 @@
+---
+- name: créer les pods via le deployment
+  hosts: kubernetes
+  # become: true
+  user: ubuntu
+
+  tasks:
+  - name: créer un deployment
+    command: kubectl apply -f webapp-deploy.yml
+
+  - name: mettre à jour le déploiement avec de nouveaux pods si l'image a changé sur docker hub
+    command: kubectl rollout restart deployment.v1.apps/webapp-deployment

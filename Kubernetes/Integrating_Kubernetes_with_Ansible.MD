@@ -1,19 +1,19 @@
-# Integrating Kubernetes cluster with Ansible
+# Intégrer un cluster Kubernetes avec Ansible
 
-1. Login to ansible server and copy public key onto kubernetes cluseter master account 
+1. Connectez-vous au serveur Ansible et copiez la clé publique sur le compte du nœud master du cluster Kubernetes
 
-1. Update hosts file with new group called kubernetes and add kubernetes master in that. 
+1. Mettez à jour le fichier hosts avec un nouveau groupe appelé kubernetes et ajoutez-y le master Kubernetes.
 
-1. Create ansible playbooks to create **[deployment](https://github.com/yankils/Simple-DevOps-Project/blob/master/Kubernetes/kubernetes-valaxy-deployment.yml)** and **[services](https://github.com/yankils/Simple-DevOps-Project/blob/master/Kubernetes/kubernetes-valaxy-service.yml)** 
+1. Créez des playbooks Ansible pour créer le **[deployment](kubernetes-webapp-deployment.yml)** et le **[service](kubernetes-webapp-service.yml)** (voir aussi les manifests [webapp-deploy.yml](webapp-deploy.yml) et [webapp-service.yml](webapp-service.yml))
 		
-1.  Check for pods, deployments and services on kubernetes master
+1.  Vérifiez les pods, deployments et services sur le master Kubernetes
     ```sh 
     kubectl get pods -o wide 
     kubectl get deploy -o wide
     kubectl get service -o wide
     ```
 	
-1. Access application suing service IP
+1. Accédez à l'application via l'IP du service
    ```sh
-   wget <kubernetes-Master-IP>:31200
+   wget <IP-du-Master-Kubernetes>:31200
    ```
