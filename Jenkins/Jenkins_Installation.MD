@@ -1,61 +1,59 @@
-# Install Jenkins on AWS EC2
-Jenkins is a self-contained Java-based program, ready to run out-of-the-box, with packages for Windows, Mac OS X and other Unix-like operating systems. As an extensible automation server, Jenkins can be used as a simple CI server or turned into the continuous delivery hub for any project.
+# Installer Jenkins sur AWS EC2
+Jenkins est un programme Java autonome, prêt à l'emploi, avec des paquets pour Windows, Mac OS X et les autres systèmes Unix-like. En tant que serveur d'automatisation extensible, Jenkins peut être utilisé comme simple serveur CI ou transformé en hub de livraison continue pour n'importe quel projet.
 
-### Follow this artical [On YouTube Channel](https://youtu.be/ERR7cqW28FY)
-
-### Prerequisites
-1. EC2 Instance 
-   - With Internet Access
-   - Security Group with Port `8080` open for internet
-1. Java 11 should be installed  
+### Pré-requis
+1. Instance EC2
+   - Avec accès Internet
+   - Security Group avec le port `8080` ouvert vers Internet
+1. Java 11 doit être installé
 
 
-## Install Jenkins
- You can install jenkins using the rpm or by setting up the repo. We will set up the repo so that we can update it easily in the future.
-1. Get the latest version of jenkins from https://pkg.jenkins.io/redhat-stable/ and install
+## Installer Jenkins
+Vous pouvez installer Jenkins via le rpm ou en configurant le dépôt. On configure le dépôt afin de pouvoir le mettre à jour facilement par la suite.
+1. Récupérez la dernière version de Jenkins depuis https://pkg.jenkins.io/redhat-stable/ et installez-la
    ```sh
    sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
    sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
    amazon-linux-extras install epel 
    amazon-linux-extras install java-openjdk11  
    
-   #on RedHat/CentOs 
-   #yum install epel-release # repository that provides 'daemonize'
+   #sur RedHat/CentOS 
+   #yum install epel-release # dépôt fournissant 'daemonize'
    #yum install java-11-openjdk-devel
    #yum install jenkins
    ```
 
-   ### Start Jenkins
+   ### Démarrer Jenkins
    ```sh
-   # Start jenkins service
+   # Démarrer le service jenkins
    service jenkins start
 
-   # Setup Jenkins to start at boot,
+   # Configurer Jenkins pour qu'il démarre au boot
    chkconfig jenkins on
    ```
 
-   ### Accessing Jenkins
-   By default jenkins runs at port `8080`, You can access jenkins at
+   ### Accéder à Jenkins
+   Par défaut, Jenkins tourne sur le port `8080`. Vous pouvez y accéder via :
    ```sh
-   http://YOUR-SERVER-PUBLIC-IP:8080
+   http://IP-PUBLIQUE-DE-VOTRE-SERVEUR:8080
    ```
-  #### Configure Jenkins
-- The default Username is `admin`
-- Grab the default password 
-- Password Location:`/var/lib/jenkins/secrets/initialAdminPassword`
-- `Skip` Plugin Installation; _We can do it later_
-- Change admin password
+  #### Configurer Jenkins
+- Le nom d'utilisateur par défaut est `admin`
+- Récupérez le mot de passe par défaut
+- Emplacement du mot de passe : `/var/lib/jenkins/secrets/initialAdminPassword`
+- `Passez` l'installation des plugins ; _on peut le faire plus tard_
+- Changez le mot de passe admin
    - `Admin` > `Configure` > `Password`
-- Configure `java` path
+- Configurez le chemin `java`
   - `Manage Jenkins` > `Global Tool Configuration` > `JDK`  
-- Create another admin user id
+- Créez un autre identifiant administrateur
 
-### Test Jenkins Jobs
-1. Create “new item”
-1. Enter an item name – `My-First-Project`
-   - Chose `Freestyle` project
-1. Under the Build section
-	Execute shell: echo "Welcome to Jenkins Demo"
-1. Save your job 
-1. Build job
-1. Check "console output"
+### Tester des jobs Jenkins
+1. Créez un « new item »
+1. Entrez un nom d'item – `My-First-Project`
+   - Choisissez un projet `Freestyle`
+1. Dans la section Build
+	Execute shell : echo "Welcome to Jenkins Demo"
+1. Enregistrez votre job
+1. Lancez le job (Build)
+1. Consultez le "console output"

@@ -1,21 +1,20 @@
-# Ansible integration with Jenkins
+# Intégration Ansible avec Jenkins
 
-### Prerequisites:
-1. Ansible server **[Get Help Here](https://www.youtube.com/watch?v=79xFyOc_eEY)**
-2. Jenkins Server **[Get Help Here](https://www.youtube.com/watch?v=M32O4Yv0ANc)**
+### Pré-requis :
+1. Serveur Ansible (voir [Ansible_installation.MD](../Ansible/Ansible_installation.MD))
+2. Serveur Jenkins (voir [Jenkins_Installation.MD](Jenkins_Installation.MD))
 
-### Part-01 Integration Setps
+### Partie 1 : étapes d'intégration
 
-Install "publish Over SSH"
- - `Manage Jenkins` > `Manage Plugins` > `Available` > `Publish over SSH` 
+Installez "Publish Over SSH"
+ - `Manage Jenkins` > `Manage Plugins` > `Available` > `Publish over SSH`
 
-Enable connection between Ansible and Jenkins
-- `Manage Jenkins` > `Configure System` > `Publish Over SSH` > `SSH Servers` 
+Activez la connexion entre Ansible et Jenkins
+- `Manage Jenkins` > `Configure System` > `Publish Over SSH` > `SSH Servers`
 
-	- SSH Servers:
-		- Hostname:`<ServerIP>`
-		- username: `ansadm`
-		- password: `*******`
+	- SSH Servers :
+		- Hostname : `<IP_du_serveur>`
+		- username : `ansadm`
+		- password : `*******`
 
-Test the connection "Test Connection"
-
+Testez la connexion avec "Test Connection"

@@ -1,20 +1,18 @@
-# Configure Git pulgin on Jenkins
-Git is one of the most popular tools for version control system. you can pull code from git repositories using jenkins if you use github plugin. 
+# Configurer le plugin Git sur Jenkins
+Git est l'un des outils de gestion de versions les plus utilisés. Vous pouvez récupérer du code depuis des dépôts Git via Jenkins en utilisant le plugin GitHub.
 
+#### Pré-requis
+1. Serveur Jenkins
 
-#### Prerequisites
-1. Jenkins server 
-
-#### Install Git on Jenkins server
-1. Install git packages on jenkins server
+#### Installer Git sur le serveur Jenkins
+1. Installez les paquets git sur le serveur Jenkins
    ```sh
    yum install git -y
    ```
 
-#### Setup Git on jenkins console
-- Install git plugin without restart  
+#### Configurer Git dans la console Jenkins
+- Installez le plugin git sans redémarrage
   - `Manage Jenkins` > `Jenkins Plugins` > `available` > `github`
 
-- Configure git path
+- Configurez le chemin git
   - `Manage Jenkins` > `Global Tool Configuration` > `git`
-
