@@ -1,63 +1,63 @@
-# Deploy on a docker container using Jenkins 
+# Déployer sur un conteneur Docker avec Jenkins
 # `Deploy_on_Container`
 
-### Pre-requisites
+### Pré-requis
 
-1. Jenkins server 
-1. Docker-host server 
-1. `Dockerfile` under *`/home/dockeradmin`* in user home directory on docker host 
+1. Serveur Jenkins
+1. Serveur hôte Docker
+1. `Dockerfile` dans *`/home/dockeradmin`* (répertoire personnel de l'utilisateur) sur l'hôte Docker
    ```sh 
-   # Pull tomcat latest image from dockerhub 
+   # Récupérer la dernière image tomcat depuis dockerhub 
    From tomcat
    # Maintainer
-   MAINTAINER "AR Shankar" 
+   MAINTAINER "RANDRIAMISAINA Tsiory" 
 
-   # copy war file on to container 
+   # copier le fichier war dans le conteneur 
    COPY ./webapp.war /usr/local/tomcat/webapps
-### Integration between Docker-host and Jenkins
+### Intégration entre l'hôte Docker et Jenkins
 
-Install "publish Over SSH"
+Installez "Publish Over SSH"
  - `Manage Jenkins` > `Manage Plugins` > `Available` > `Publish over SSH`
 
-Enable connection between Docker-host and Jenkins
+Activez la connexion entre l'hôte Docker et Jenkins
 
-- `Manage Jenkins` > `Configure System` > `Publish Over SSH` > `SSH Servers` 
+- `Manage Jenkins` > `Configure System` > `Publish Over SSH` > `SSH Servers`
 
-	- SSH Servers:
-                - Name: `docker-host`
-		- Hostname:`<ServerIP>`
-		- username: `dockeradmin`
+	- SSH Servers :
+                - Name : `docker-host`
+		- Hostname : `<IP_du_serveur>`
+		- username : `dockeradmin`
                
-       -  `Advanced` > chose `Use password authentication, or use a different key`
-		 - password: `*******`
+       -  `Advanced` > choisir `Use password authentication, or use a different key`
+		 - password : `*******`
  
-### Steps to create "Deploy_on_Container" Jenkin job
-#### From Jenkins home page select "New Item"
-   - Enter an item name: `Deploy_on_Container`
-     - Copy from: `Deploy_on_Docker_Host`
+### Étapes pour créer le job Jenkins "Deploy_on_Container"
+#### Depuis la page d'accueil Jenkins, sélectionnez "New Item"
+   - Entrez un nom d'item : `Deploy_on_Container`
+     - Copy from : `Deploy_on_Docker_Host`
      
-   - *Source Code Management:*
-      - Repository: `https://github.com/yankils/hello-world.git`
+   - *Source Code Management :*
+      - Repository : `https://github.com/2Randi/JEE_v2.git`
       - Branches to build : `*/master`  
    - *Poll SCM* :      - `* * * *`
 
-   - *Build:*
-     - Root POM:`pom.xml`
-     - Goals and options: `clean install package`
+   - *Build :*
+     - Root POM : `pom.xml`
+     - Goals and options : `clean install package`
 
  - *Post-build Actions*
    - Send build artifacts over SSH
      - *SSH Publishers*
-      - SSH Server Name: `docker-host`
+      - SSH Server Name : `docker-host`
        - `Transfers` >  `Transfer set`
-            - Source files: `webapp/target/*.war`
-	       - Remove prefix: `webapp/target`
-	       - Remote directory: `//home//ansadmin` or `.`
-	       - Exec command: 
+            - Source files : `webapp/target/*.war`
+	       - Remove prefix : `webapp/target`
+	       - Remote directory : `//home//ansadmin` ou `.`
+	       - Exec command : 
                 ```sh 
                 cd /home/dockeradmin;
                 docker build -t simple-devops-image .; 
                 docker run -d --name simple-devops-container -p 8080:8080 simple-devops-image;
                 ```
 
-Save and run the job now.
+Enregistrez et lancez le job maintenant.

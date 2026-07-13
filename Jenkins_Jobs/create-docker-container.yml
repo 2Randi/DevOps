@@ -1,15 +1,15 @@
-# Option-1 : Createting docker container using command module 
+# Option 1 : créer le conteneur docker via le module command
 ---
 - hosts: all
   become: true
 
   tasks:
-  - name: creating docker image using docker command
+  - name: création du conteneur docker via la commande docker
     command: docker run -d --name simple-devops-container -p 8080:8080 simple-devops-image
-	
-# option-2 : creating docker container using docker_container module 	
+
+# option 2 : créer le conteneur docker via le module docker_container
 #  tasks:
-#  - name: create simple-devops-container
+#  - name: création du conteneur simple-devops-container
 #    docker_container:
 #      name: simple-devops-container
 #      image: simple-devops-image

@@ -1,25 +1,25 @@
-# Deploy on a docker container using Ansible
-# *Jenkins Job name:* `Deploy_on_Container_using_ansible`
+# Déployer sur un conteneur Docker en utilisant Ansible
+# *Nom du job Jenkins :* `Deploy_on_Container_using_ansible`
 
-### Pre-requisites
+### Pré-requis
 
-1. Jenkins server 
-1. Docker-host server 
-1. Ansible server
-1. `Dockerfile` under *`/opt/docker`* on Ansible server **[Get Help Here]()**
+1. Serveur Jenkins
+1. Serveur hôte Docker
+1. Serveur Ansible
+1. `Dockerfile` dans *`/opt/docker`* sur le serveur Ansible (voir [Ansible_installation.MD](../Ansible/Ansible_installation.MD))
    ```sh 
-   # Pull tomcat latest image from dockerhub 
+   # Récupérer la dernière image tomcat depuis dockerhub 
    From tomcat
    # Maintainer
-   MAINTAINER "AR Shankar" 
+   MAINTAINER "RANDRIAMISAINA Tsiory" 
 
-   # copy war file on to container 
+   # copier le fichier war dans le conteneur 
    COPY ./webapp.war /usr/local/tomcat/webapps
-1. Create `create-docker-image.yml` unser *`/opt/docker`* on Ansible server **[Get Help Here]()**
+1. Créez `create-docker-image.yml` sous *`/opt/docker`* sur le serveur Ansible
    ```sh
    ---
    - hosts: all
-     #ansadmin doesn't need root access to create an image
+     #ansadmin n'a pas besoin des droits root pour créer une image
      become: true 
 
      tasks:
@@ -28,59 +28,59 @@
        args:
          chdir: /opt/docker
    ```
-1. Create `create-docker-image.yml` under *`/opt/docker`* on Ansible server **[Get Help Here]()**
+1. Créez `create-docker-container.yml` sous *`/opt/docker`* sur le serveur Ansible
    ```ssh
    ---
    - hosts: all
-     become: ture
+     become: true
 
      tasks:
-     - name: creating docker image using docker command
+     - name: creating docker container using docker command
        command: docker run -d --name simple-devops-container -p 8080:8080 simple-devops-image
    ```
 
-### Integration between Ansible-control-node and Jenkins
+### Intégration entre le nœud de contrôle Ansible et Jenkins
 
-Install "publish Over SSH"
+Installez "Publish Over SSH"
  - `Manage Jenkins` > `Manage Plugins` > `Available` > `Publish over SSH`
 
-Enable connection between Ansible-control-node and Jenkins
+Activez la connexion entre le nœud de contrôle Ansible et Jenkins
 
-- `Manage Jenkins` > `Configure System` > `Publish Over SSH` > `SSH Servers` 
+- `Manage Jenkins` > `Configure System` > `Publish Over SSH` > `SSH Servers`
 
-	- SSH Servers:
-                - Name: `ansible-server`
-		- Hostname:`<ServerIP>`
-		- username: `ansadmin`
+	- SSH Servers :
+                - Name : `ansible-server`
+		- Hostname : `<IP_du_serveur>`
+		- username : `ansadmin`
                
-       -  `Advanced` > chose `Use password authentication, or use a different key`
-		 - password: `*******`
+       -  `Advanced` > choisir `Use password authentication, or use a different key`
+		 - password : `*******`
  
-### Steps to create "Deploy_on_Container_using_ansible" Jenkin job
-#### From Jenkins home page select "New Item"
-   - Enter an item name: `Deploy_on_Container_using_ansible`
-     - Copy from: `Deploy_on_Container`
+### Étapes pour créer le job Jenkins "Deploy_on_Container_using_ansible"
+#### Depuis la page d'accueil Jenkins, sélectionnez "New Item"
+   - Entrez un nom d'item : `Deploy_on_Container_using_ansible`
+     - Copy from : `Deploy_on_Container`
      
-   - *Source Code Management:*
-      - Repository: `https://github.com/yankils/hello-world.git`
+   - *Source Code Management :*
+      - Repository : `https://github.com/2Randi/JEE_v2.git`
       - Branches to build : `*/master`  
    - *Poll SCM* :      - `* * * *`
 
-   - *Build:*
-     - Root POM:`pom.xml`
-     - Goals and options: `clean install package`
+   - *Build :*
+     - Root POM : `pom.xml`
+     - Goals and options : `clean install package`
 
  - *Post-build Actions*
    - Send build artifacts over SSH
      - *SSH Publishers*
-      - SSH Server Name: `ansible-server`
+      - SSH Server Name : `ansible-server`
        - `Transfers` >  `Transfer set`
-            - Source files: `webapp/target/*.war`
-	       - Remove prefix: `webapp/target`
-	       - Remote directory: `//opt//docker`
-	       - Exec command: 
+            - Source files : `webapp/target/*.war`
+	       - Remove prefix : `webapp/target`
+	       - Remote directory : `//opt//docker`
+	       - Exec command : 
                 ```sh 
                 ansible-playbook -i /opt/docker/hosts /opt/docker/create-docker-image.yml;
                 ```
 
-Save and run the job now.
+Enregistrez et lancez le job maintenant.
