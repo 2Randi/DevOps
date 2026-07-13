@@ -1,73 +1,86 @@
-# Installation de Docker sur un serveur Amazon Linux
+# Installation de Docker (labo local)
+
+## Installation de Docker Engine sur Ubuntu / Debian
+##### Référence : https://docs.docker.com/engine/install/ubuntu/
 
 ### Pré-requis
-1. Instance Amazon Linux EC2
+1. VM locale Ubuntu 24.04 LTS (ou Debian 12)
 
-## Étapes d'installation
+### Étapes d'installation
 
-1. Installez Docker et démarrez les services Docker
-```sh 
-   yum install docker -y
-   docker --version 
-   
-   # démarrez les services Docker
-   service docker start
-   service docker status
-   ```
-1. Créez un utilisateur appelé dockeradmin
-```sh
-   useradd dockeradmin
-   passwd dockeradmin
-   ```
-1. Ajoutez un utilisateur au groupe Docker pour gérer Docker 
-```
-   usermod -aG docker dockeradmin
-   ```
-### Test de validation
-1. Créez un conteneur Docker Tomcat en récupérant une image Docker à partir du registre Docker public
+1. Désinstallez les anciens paquets qui pourraient entrer en conflit
    ```sh
-   docker run -d --name test-tomcat-server -p 8090:8080 tomcat:latest
+   sudo apt remove -y docker docker-engine docker.io containerd runc
    ```
 
-## Installation de Docker sur un serveur CentOS
-##### URL de référence : https://docs.docker.com/install/linux/docker-ce/centos/#install-using-the-repository
-### Pré-requis
+2. Installez les prérequis et ajoutez le dépôt officiel Docker
+   ```sh
+   sudo apt update
+   sudo apt install -y ca-certificates curl gnupg
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-Veuillez suivre les étapes ci-dessous pour installer Docker CE sur une instance de serveur CentOS. Pour RedHat, seul Docker EE est disponible.
-
-1. Installez les paquets requis.
-
-```sh 
-   sudo yum install -y yum-utils \
-   device-mapper-persistent-data \
-   lvm2
-   ```
-  
-1. Utilisez la commande suivante pour configurer le référentiel stable.
- 
-```sh 
-   sudo yum-config-manager \
-   --add-repo \
-   https://download.docker.com/linux/centos/docker-ce.repo
+   echo \
+     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
    ```
 
-### INSTALLATION DE DOCKER CE
-
-1. Installez la dernière version de Docker CE.
-```sh 
-   sudo yum install docker-ce
-   ``` 
-
-   Remarque : si vous êtes invité à accepter la clé GPG, vérifiez que l'empreinte digitale correspond à 
-060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35, et si c'est le cas, acceptez-la.
-
-1. Démarrez Docker.
-```sh 
-   sudo systemctl start docker
+3. Installez Docker Engine, le CLI, containerd et le plugin Compose
+   ```sh
+   sudo apt update
+   sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+   docker --version
+   docker compose version
    ```
 
-1. Vérifiez que Docker est correctement installé en exécutant l'image hello-world.
+4. Démarrez et activez le service
+   ```sh
+   sudo systemctl enable --now docker
+   sudo systemctl status docker
+   ```
+
+5. Créez un utilisateur applicatif dédié et ajoutez-le au groupe `docker` (évite d'utiliser `sudo` pour chaque commande, mais notez que ce groupe équivaut à un accès root sur l'hôte : à réserver aux comptes de confiance)
+   ```sh
+   sudo useradd -m dockeradmin
+   sudo passwd dockeradmin
+   sudo usermod -aG docker dockeradmin
+   ```
+
+### Test de validation
 ```sh
+docker run -d --name test-tomcat-server -p 8090:8080 tomcat:latest
+docker ps
+```
+
+## Installation de Docker Engine sur RHEL 9 / Rocky Linux 9
+##### Référence : https://docs.docker.com/engine/install/rhel/ et https://docs.docker.com/engine/install/centos/
+
+CentOS Linux (7/8) étant en fin de vie, on utilise ici **Rocky Linux 9** (ou RHEL 9), binaire-compatible et activement maintenu.
+
+1. Installez les paquets requis
+   ```sh
+   sudo dnf install -y dnf-plugins-core
+   ```
+
+2. Ajoutez le dépôt Docker CE
+   ```sh
+   sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+   ```
+
+3. Installez Docker CE
+   ```sh
+   sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+   ```
+   > Note : à l'invite d'acceptation de la clé GPG, vérifiez que l'empreinte correspond à celle publiée sur https://download.docker.com/linux/rhel/gpg avant d'accepter.
+
+4. Démarrez Docker
+   ```sh
+   sudo systemctl enable --now docker
+   ```
+
+5. Vérifiez l'installation
+   ```sh
    sudo docker run hello-world
    ```
-
