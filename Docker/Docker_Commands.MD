@@ -40,10 +40,11 @@ docker ps -a
 8. Exécuter un conteneur basé sur un système d'exploitation en mode interactif (rien d'autre que la connexion au conteneur une fois qu'il est opérationnel)
 
 ```sh
-docker run -i -t --name centos_server centos:latest
+docker run -i -t --name rocky_server rockylinux:9
 i - interactif
 t - Terminal
 ```
+> Note : l'image `centos:latest` n'est plus maintenue depuis la fin de vie de CentOS Linux ; utilisez `rockylinux:9` ou `almalinux:9` comme équivalent.
 
 9. Arrêter un conteneur 
 ```sh
